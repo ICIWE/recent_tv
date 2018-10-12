@@ -7,8 +7,9 @@
 
 import json
 import os
+import time
 from urllib.parse import urlsplit
-from random import choice
+from random import choice, randint
 from collections import defaultdict
 from scrapy import signals
 from scrapy.downloadermiddlewares.httpproxy import HttpProxyMiddleware
@@ -76,6 +77,12 @@ class RandomProxyMiddleware(HttpProxyMiddleware):
         if creds:
             request.headers['Proxy-Authorization'] = b'Basic ' + creds
 
+
+class RandomdelayMiddleware(object):
+    def process_request(self, request, spider):
+        if 'kuaidaili' in request.url:
+            delay = randint(6, 10)
+            time.sleep(delay)
 
 class RecentTvSpiderMiddleware(object):
     # Not all methods need to be defined. If a method is not defined,

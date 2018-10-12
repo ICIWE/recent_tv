@@ -138,7 +138,7 @@ class RecentTvPipeline(object):
 
 class ProxyPipeline(object):
     def open_spider(self, spider):
-        if spider.name not in  ['proxy_xici','proxy_kuai']:
+        if spider.name not in  ['proxy_xici','proxy_kuai', 'proxy']:
             return
         proxy_file = httpproxy_file
         self.file = open(proxy_file, 'wb')
@@ -146,13 +146,13 @@ class ProxyPipeline(object):
         self.exporter.start_exporting()
 
     def close_spider(self, spider):
-        if spider.name not in  ['proxy_xici','proxy_kuai']:
+        if spider.name not in  ['proxy_xici','proxy_kuai', 'proxy']:
             return
         self.exporter.finish_exporting()
         self.file.close()
 
     def process_item(self, item, spider):
-        if spider.name not in  ['proxy_xici','proxy_kuai']:
+        if spider.name not in  ['proxy_xici','proxy_kuai', 'proxy']:
             return item
         self.exporter.export_item(item)
         return item 
