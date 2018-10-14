@@ -16,6 +16,9 @@ class ProxySpider(scrapy.Spider):
 
     base_url_xici = 'http://www.xicidaili.com/nn/%s'
 
+    # 设置爬取的页数
+    page_spide = 1
+
     proxy_set = set()
 
     custom_settings = {
@@ -30,7 +33,7 @@ class ProxySpider(scrapy.Spider):
 
     def start_requests(self):
         # xicidaili网站初始链接
-        for i in range(1,3):          # <<<====== 设置爬取页数
+        for i in range(1, self.page_spide + 1):
             url_xici = self.base_url_xici % i
             yield Request(url_xici, callback=self.parse_xici)
 
@@ -49,27 +52,14 @@ class ProxySpider(scrapy.Spider):
             url = 'https://movie.douban.com/'
             proxy = 'https://%s:%s' % (ip, port) 
             scheme = 'https'
-            # meta = {
-            #     'proxy': proxy,
-            #     'dont_retry': True,
-            #     'download_timeout': 5,
 
-            #     '_proxy': proxy         # 此网站未标注代理的协议类型，所以取消scheme字段
-            #     '_ip': ip
-            # }s
-            # print('++++正在测试代理：', proxy)
-            # # 注意必须设置 dont_filter=True
-            # yield Request(url, callback=self.check_alive, meta=meta, dont_filter=True)
-
-            # 用scrapy.Request 测试，失败时好多Traceback，看着心烦，所以用改 requests模块
             proxy_item = self.check_and_duplicate(url, proxy, scheme)
 
             if proxy_item:
                 yield proxy_item
 
-        # 爬取前 几 页,，此网站又连续访问检测，在下载时需延时
-        if self.page_kuai < 4:  # <<<====== 设置爬取页数
-            time.sleep(10)
+        # 爬取前 几 页,，此网站又连续访问检测，在下载时使用延时的下载中间件
+        if self.page_kuai < self.page_spide:
             self.page_kuai += 1
             url_kuai = self.base_url_kuak % self.page_kuai
             yield Request(url_kuai, callback=self.parse_kuai)
@@ -78,7 +68,7 @@ class ProxySpider(scrapy.Spider):
         # 解析代理的ip，port，scheme，并构造测试连接
         table = response.xpath("//table//tr")
         for row in table:
-            # 第一行为表格标题，所以跳过
+            
             if table.index(row) == 0:
                 continue
             ip = row.xpath('.//td[2]/text()').extract_first()
@@ -86,19 +76,8 @@ class ProxySpider(scrapy.Spider):
             scheme = row.xpath('.//td[6]/text()').extract_first().lower()
 
             url = 'https://movie.douban.com/'
-            proxy = '%s://%s:%s' % (scheme, ip, port) 
-            # meta = {
-            #     'proxy': proxy,
-            #     'dont_retry': True,
-            #     'download_timeout': 5,
+            proxy = '%s://%s:%s' % (scheme, ip, port)
 
-            #     '_proxy': proxy,
-            #     '_proxy_scheme': scheme
-            #     '_ip': ip
-            # }
-            # print('++++正在测试代理：', proxy)
-            # 注意必须设置 dont_filter=True
-            # yield Request(url, callback=self.check_alive, meta=meta, dont_filter=True)
             proxy_item = self.check_and_duplicate(url, proxy, scheme)
 
             if proxy_item:
@@ -127,12 +106,3 @@ class ProxySpider(scrapy.Spider):
                 }
                 proxy_item = ProxyItem(proxy_dict)
                 return proxy_item
-
-        # if response.status == 200:
-        #     print('===已找到一个可用代理：', response.meta['proxy'])
-            # proxy_dict = {
-            #     'proxy_alive': response.meta['_proxy'],
-            #     'scheme': 'https'       # 代理类型都按https 处理
-            # }
-            # proxy_item = ProxyItem(proxy_dict)
-            # yield proxy_item

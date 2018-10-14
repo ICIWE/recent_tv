@@ -16,10 +16,8 @@ class DoubanTvSpider(scrapy.Spider):
     start_urls = [base_url.format(page_limit, page_start)]
 
     def parse(self, response):
-
         resp = json.loads(response.body.decode('utf-8'))
         for item in resp['subjects']: 
-
             # tv_item 初始化。必须在for 循环内，因为meta 参数的值被获取后，会删除，需要每次传递时初始化
             tv_item = {}                        
             url = item['url']
@@ -54,7 +52,6 @@ class DoubanTvSpider(scrapy.Spider):
 
         # 将提取的信息汇入 tv_item 字典中
         tv_item['详情'] = dict(zip(pl, values))
-        # tv_item.update(dict(zip(pl, values)))
 
         # 前面爬取了电视剧所有季数，现在替换成当前季数
         tv_item['详情']['季数'] = node.xpath('.//option[@selected="selected"]/text()').extract_first()

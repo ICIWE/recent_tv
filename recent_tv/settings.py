@@ -15,6 +15,8 @@ SPIDER_MODULES = ['recent_tv.spiders']
 NEWSPIDER_MODULE = 'recent_tv.spiders'
 FEED_EXPORT_ENCODING = 'utf-8'
 
+COMMANDS_MODULE = 'recent_tv.command'
+
 # 代理池文件的存放位置
 HTTPPROXY_FILE = './data/proxy_file.json'
 
