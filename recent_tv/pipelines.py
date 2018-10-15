@@ -27,14 +27,16 @@ class RecentTvPipeline(object):
         if self.status == False:
             return
 
-        # 直接传入词典参数有问题
-        self.conn = pymysql.connect(
-            host=self.attrs.get('host'),
-            user=self.attrs.get('user'),
-            password=self.attrs.get('password'),
-            db=self.attrs.get('db'),
-            charset=self.attrs.get('charset')
-            )
+        sql_config = {
+            'host': self.attrs.get('host'),
+            'user': self.attrs.get('user'),
+            'password': self.attrs.get('password'),
+            'db': self.attrs.get('db'),
+            'charset': self.attrs.get('charset'),
+        }
+
+        self.conn = pymysql.connect(**sql_config)
+
         self.cur = self.conn.cursor()
         sql = '''CREATE TABLE IF NOT EXISTS {}(
             id  int(11) primary key,
