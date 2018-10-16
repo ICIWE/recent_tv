@@ -3,7 +3,7 @@
 import requests
 import re
 import pymysql
-# import logging
+import logging
 from bs4 import BeautifulSoup
 
 
@@ -63,6 +63,7 @@ class FindTV(object):
 
     def ip(self):
         # 查看当前使用的ip 地址，返回ip 地址
+        # 备用
         url = 'https://www.baidu.com/s?wd=ip'
         resp = requests.get(url, timeout=5, headers=headers, proxies=proxies)
         soup = BeautifulSoup(resp.content.decode('utf-8'), 'lxml')
@@ -96,9 +97,7 @@ class Save(object):
         try:
             self.cur.execute(sql)
         except Exception as e:
-            return e
-        else:
-            return True
+            logging.error('数据库表格创建失败:%s' %e)
 
     def insert_item(self, item):
         if item is None or len(item) == 0:
@@ -116,11 +115,9 @@ class Save(object):
         try:
             if self.cur.execute(sql, data):
                 self.conn.commit()
-                # logging.info('数据 %s已存入数据库，表格%s' %(item.get('id'), self.table))
-                print('数据 %s已存入数据库，表格%s' %(item.get('id'), self.table))
+                logging.info('数据 %s已存入数据库，表格%s' %(item.get('id'), self.table))
         except Exception as e:
-            # logging.info('%s 存入失败，因为：%s' %(item.get('id'), e))
-            print('%s 存入失败，因为：%s' %(item.get('id'), e))
+            logging.info('%s 存入失败：%s' %(item.get('id'), e))
             self.conn.rollback()
 
     def _connect_sql(self):
@@ -148,12 +145,11 @@ class LoadTV(object):
             self.cur.execute(sql)
             results = self.cur.fetchall()
         except Exception as e:
-            # logging.info('发生错误: %s' % e)
+            logging.info('发生错误: %s' % e)
             print(e)
             return
         else:
-            # logging.debug('电视剧信息读取完成， 准备搜索。。。')
-            print('电视剧加载完成 ... ')
+            logging.info('电视剧信息读取完成，准备搜索 ...')
             return results
 
     def _connect_sql(self):
@@ -177,7 +173,7 @@ def main():
     save._connect_sql()
     save.create_table()
     for row in tv_i:
-        print('正在查找：', row[1])
+        logging.info('正在查找：%s' %row[1])
         result_t = find_tv.find_from_tencent(row[1])
         result_i = find_tv.find_from_iqiyi(row[1])
         result_y = find_tv.find_from_youku(row[1])
@@ -201,10 +197,10 @@ def main():
         item['片名'] = row[1]
         item['其他'] = None
         save.insert_item(item)
-    # logging.info('搜索并保存完毕')
-    print('finished')
+    logging.info('搜索并保存完毕')
     save._close_sql()
 
 
 if __name__ == '__main__':
+    logging.basicConfig(level=logging.INFO)
     main()

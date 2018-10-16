@@ -28,11 +28,11 @@ class DoubanTvSpider(scrapy.Spider):
             yield Request(url, callback=self.parse_page, 
                 meta={'_item': tv_item})
 
-        # 获取下一页，直到响应为空
-        # if resp['subjects']:
-        #     self.page_start += self.page_limit
-        #     url = self.base_url.format(self.page_limit, self.page_start)
-        #     yield Request(url, callback=self.parse)
+        获取下一页，直到响应为空
+        if resp['subjects']:
+            self.page_start += self.page_limit
+            url = self.base_url.format(self.page_limit, self.page_start)
+            yield Request(url, callback=self.parse)
 
     def parse_page(self, response):
         # 从meta中提取字段数据

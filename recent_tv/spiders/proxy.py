@@ -17,7 +17,7 @@ class ProxySpider(scrapy.Spider):
     base_url_xici = 'http://www.xicidaili.com/nn/%s'
 
     # 设置爬取的页数
-    page_spide = 1
+    page_spide = 3
 
     proxy_set = set()
 

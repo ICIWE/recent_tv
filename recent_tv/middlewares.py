@@ -29,7 +29,10 @@ class RandomProxyMiddleware(HttpProxyMiddleware):
         # 只有douban_tv 爬虫需要代理，其他爬虫不用
         if crawler.spider.name == 'douban_tv':
             with open(proxy_file) as f:
-                proxy_list = json.load(f)
+                if f:
+                    proxy_list = json.load(f)
+                else:
+                    raise NotConfigured
             for proxy in proxy_list:
                 url = proxy['proxy_alive']
                 scheme = proxy['scheme']
